@@ -1,0 +1,37 @@
+name: Add awesome-list entry
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  add-entry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Insert entry into README
+        run: |
+          if grep -q "VexQuill Contract Audit API" README.md; then
+            echo "Entry already present, skipping."
+          else
+            ENTRY='- [VexQuill Contract Audit API](https://x402-audit-api.vexquill.deno.net) - Pay-per-call smart contract security scanner, $0.005 USDC per audit on Base. 14 static analysis checks.'
+            MATCHES=$(grep -c "EIP-3009 Security Analysis" README.md)
+            echo "Anchor matches: $MATCHES"
+            if [ "$MATCHES" -ne 1 ]; then echo "Expected exactly 1 anchor line, found $MATCHES"; exit 1; fi
+            awk -v entry="$ENTRY" '{ print } /EIP-3009 Security Analysis/ { print entry }' README.md > README.md.new && mv README.md.new README.md
+          fi
+          grep -n "VexQuill Contract Audit API" README.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "VexQuill"
+          git config user.email "VexQuill@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet || git commit -m "Add VexQuill Contract Audit API to Smart Contract Audits"
+          git push origin main
