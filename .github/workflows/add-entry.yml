@@ -15,8 +15,9 @@ jobs:
         with:
           ref: main
 
-      - name: Insert entry into README
+      - name: Restore full README and insert entry
         run: |
+          curl -sL https://raw.githubusercontent.com/xpaysh/awesome-x402/main/README.md -o README.md
           if grep -q "VexQuill Contract Audit API" README.md; then
             echo "Entry already present, skipping."
           else
